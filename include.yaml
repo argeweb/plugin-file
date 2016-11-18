@@ -1,0 +1,12 @@
+handlers:
+- url: /webdav
+  script: plugins.webdav.webdav_application.web_dav
+  secure: always
+
+- url: /webdav/
+  script: plugins.webdav.webdav_application.web_dav
+  secure: always
+
+- url: /webdav/.*
+  script: plugins.webdav.webdav_application.web_dav
+  secure: always

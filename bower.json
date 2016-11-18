@@ -1,0 +1,18 @@
+{
+  "name": "webdav",
+  "homepage": "https://github.com/argeweb/plugin-webdav",
+  "authors": [
+    "cwen0708 <cwen0708@gmail.com>"
+  ],
+  "description": "",
+  "main": "",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components"
+  ],
+  "dependencies": {
+    "application_user": "argeweb/plugin-application-user"
+  }
+}
