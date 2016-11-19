@@ -113,6 +113,17 @@ class FileModel(BasicModel):
         """ get record with content-type and sort by title """
         return cls.query(cls.content_type == content_type).order(cls.name)
 
+    @classmethod
+    def get_or_create(cls, path, content_type):
+        n = cls.get_by_path(path)
+        if n is None:
+            n = cls()
+            n.name = os.path.basename("%s" % path)
+            n.path = path
+            n.content_type = content_type
+            n.put()
+        return n
+
     def move_to_path(self, destination_path):
         """Moves this resource and all its children (if applicable) to a new path.
            Assumes that the new path is free and clear."""
@@ -129,11 +140,15 @@ class FileModel(BasicModel):
     def put(self):
         # workaround for general non-solveable issue of no UNIQUE constraint concept in app engine datastore.
         # anytime we save, we look for the possibility of other duplicate Resources with the same path and delete them.
-        for duped_resource in FileModel.all().filter(FileModel.path == self.path):
-            if self.key().id() != duped_resource.key().id():
-                logging.info("Deleting duplicate resource %s with path %s." % (duped_resource,duped_resource.path))
-                duped_resource.delete()
-        self.name = self.display_name
+        try:
+            for duped_resource in FileModel.all().filter(FileModel.path == self.path):
+                if self.key().id() != duped_resource.key().id():
+                    logging.info("Deleting duplicate resource %s with path %s." % (duped_resource,duped_resource.path))
+                    duped_resource.delete()
+            if self.name != "-Root-":
+                self.name = self.display_name
+        except:
+            pass
         super(FileModel, self).put()
 
     def delete(self):
@@ -143,8 +158,11 @@ class FileModel(BasicModel):
             if n:
                 n.key.delete()
         if self.last_version > 0:
-            from plugins.code.models.code_model import CodeModel
-            CodeModel.delete_with_target(self.key)
+            try:
+                from plugins.code.models.code_model import CodeModel
+                CodeModel.delete_with_target(self.key)
+            except:
+                pass
         self.key.delete()
 
     def delete_recursive(self):
@@ -184,15 +202,6 @@ class FileModel(BasicModel):
         ET.SubElement(propstat,'D:status').text = "HTTP/1.1 200 OK"
         return response
 
-    @classmethod
-    def get_or_create(cls, path, content_type):
-        n = cls.find_by_name(path)
-        if n is None:
-            n = cls()
-            n.name = path
-            n.content_type = content_type
-            n.put()
-        return n
 
 
 

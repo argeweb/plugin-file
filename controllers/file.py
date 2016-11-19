@@ -16,7 +16,7 @@ class File(Controller):
     class Meta:
         components = (scaffold.Scaffolding, Pagination, Search)
         pagination_actions = ("list",)
-        pagination_limit = 50
+        pagination_limit = 10
 
     class Scaffold:
         helper = plugins_helper
