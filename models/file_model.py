@@ -20,6 +20,7 @@ from file_self_referential_model import FileModel as selfReferentialModel
 def get_file(path):
     return FileModel.get_by_path(path)
 
+
 class FileDataModel(ndb.Model):
     name = ndb.StringProperty()
     title = ndb.StringProperty()
@@ -36,18 +37,19 @@ class FileModel(BasicModel):
         }
     name = Fields.StringProperty(verbose_name=u"名稱")
     path = Fields.StringProperty(verbose_name=u"檔案路徑")
-    content_length = Fields.IntegerProperty(verbose_name=u"檔案大小")
+    content_length = Fields.IntegerProperty(default=0, verbose_name=u"檔案大小")
     content_type = Fields.StringProperty(default="blob", verbose_name=u"檔案類型")
+    content_language = Fields.StringProperty()
     parent_resource = Fields.CategoryProperty(kind=selfReferentialModel, verbose_name=u"所屬目錄")
     is_collection = Fields.BooleanProperty(default=False, verbose_name=u"是否為目錄")
     is_root = Fields.BooleanProperty(default=False, verbose_name=u"是否為根目錄")
     created = Fields.DateTimeProperty(auto_now_add=True)
     modified = Fields.DateTimeProperty(auto_now=True)
-    content_language = Fields.StringProperty()
     etag = Fields.StringProperty(verbose_name=u"ETag")
     resource_data = Fields.CategoryProperty(kind=FileDataModel, verbose_name=u"檔案實體")
     last_version = Fields.IntegerProperty(default=0, verbose_name=u"最新的版本")
-    last_md5 = Fields.StringProperty(verbose_name=u"MD5")
+    last_md5 = Fields.StringProperty(default=u"", verbose_name=u"MD5")
+    file = Fields.BlobKeyProperty(verbose_name=u"BlobKey")
 
     @property
     def children(self):
@@ -86,6 +88,24 @@ class FileModel(BasicModel):
         return cls.query(
                 cls.content_type.IN(["css", "js", "javascript", "html", "text/css", "text/html", "text/javascript"]),
         ).order(-cls.sort, -cls.key)
+
+    def make_directory(self):
+        path = self.path
+        paths = path.split("/")
+        last_parent = FileModel.root()
+        for i in xrange(1, len(paths)):
+            path_str = "/".join(paths[:i])
+            collection = FileModel.get_by_path(path_str)
+            if collection is None:
+                collection = FileModel()
+                collection.name = paths[i]
+                collection.path = path_str
+                collection.parent_resource = last_parent.key
+                collection.is_collection = True
+                collection.put()
+            last_parent = collection
+        self.parent_resource = last_parent.key
+        self.put()
 
     @classmethod
     def root(cls):
