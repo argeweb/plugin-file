@@ -50,6 +50,7 @@ class FileModel(BasicModel):
     last_version = Fields.IntegerProperty(default=0, verbose_name=u"最新的版本")
     last_md5 = Fields.StringProperty(default=u"", verbose_name=u"MD5")
     file = Fields.BlobKeyProperty(verbose_name=u"BlobKey")
+    theme = Fields.StringProperty(default=u"", verbose_name=u"所屬樣式")
 
     @property
     def children(self):
@@ -98,11 +99,11 @@ class FileModel(BasicModel):
             collection = FileModel.get_by_path(path_str)
             if collection is None:
                 collection = FileModel()
-                collection.name = paths[i]
-                collection.path = path_str
-                collection.parent_resource = last_parent.key
-                collection.is_collection = True
-                collection.put()
+            collection.name = paths[i]
+            collection.path = path_str
+            collection.parent_resource = last_parent.key
+            collection.is_collection = True
+            collection.put()
             last_parent = collection
         self.parent_resource = last_parent.key
         self.put()
@@ -116,6 +117,11 @@ class FileModel(BasicModel):
             root.is_root = True
             root.put()
         return root
+
+    @classmethod
+    def all_by_path(cls, path=""):
+        query = cls.all().filter(cls.path == path + "%")
+        return query
 
     @classmethod
     def get_by_path(cls, path=None):
@@ -160,6 +166,7 @@ class FileModel(BasicModel):
     def put(self):
         # workaround for general non-solveable issue of no UNIQUE constraint concept in app engine datastore.
         # anytime we save, we look for the possibility of other duplicate Resources with the same path and delete them.
+
         try:
             for duped_resource in FileModel.all().filter(FileModel.path == self.path):
                 if self.key().id() != duped_resource.key().id():
@@ -169,6 +176,11 @@ class FileModel(BasicModel):
                 self.name = self.display_name
         except:
             pass
+        paths = self.path.split("/")
+        theme = ""
+        if len(paths) >= 2 and paths[0] == "themes":
+            theme = paths[1]
+        self.theme = theme
         super(FileModel, self).put()
 
     def delete(self):
