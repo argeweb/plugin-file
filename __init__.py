@@ -42,7 +42,10 @@ class GetFileHandler(webapp2.RequestHandler):
         from google.appengine.api import namespace_manager
         host_information, namespace, theme = settings.get_host_information_item()
         namespace_manager.set_namespace(namespace)
-        request_path = get_theme_path(theme, request_path)
+        if request_path.startswith("assets/") is True:
+            request_path = request_path[7:]
+        else:
+            request_path = get_theme_path(theme, request_path)
         if self.request.headers.get('If-None-Match'):
             return self.abort(304)
         resource = get_file(request_path)
