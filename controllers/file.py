@@ -21,8 +21,8 @@ class File(Controller):
     class Scaffold:
         display_properties_in_list = ("path", "etag", "parent_resource", "display_name", "content_type", "content_length", "data")
 
-    @route_menu(list_name=u"backend", text=u"hr", sort=9711, group=u"檔案管理")
-    @route_menu(list_name=u"backend", text=u"檔案列表", sort=9712, group=u"檔案管理")
+    @route_menu(list_name=u"backend", text=u"hr", sort=9811, group=u"檔案管理")
+    @route_menu(list_name=u"backend", text=u"檔案列表", sort=9812, group=u"檔案管理")
     def admin_list(self):
         model = self.meta.Model
         def query_factory_all_without_root(self):
