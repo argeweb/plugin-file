@@ -39,7 +39,7 @@ class FileModel(BasicModel):
     path = Fields.StringProperty(verbose_name=u"檔案路徑")
     content_length = Fields.IntegerProperty(default=0, verbose_name=u"檔案大小")
     content_type = Fields.StringProperty(default="blob", verbose_name=u"檔案類型")
-    content_language = Fields.StringProperty()
+    content_language = Fields.StringProperty(verbose_name=u"語系")
     parent_resource = Fields.CategoryProperty(kind=selfReferentialModel, verbose_name=u"所屬目錄")
     is_collection = Fields.BooleanProperty(default=False, verbose_name=u"是否為目錄")
     is_root = Fields.BooleanProperty(default=False, verbose_name=u"是否為根目錄")
@@ -92,10 +92,12 @@ class FileModel(BasicModel):
 
     def make_directory(self):
         path = self.path
+        if path[0:1] is u"/":
+            path = u"/" + path
         paths = path.split("/")
         last_parent = FileModel.root()
         for i in xrange(1, len(paths)):
-            path_str = "/".join(paths[:i])
+            path_str = u"/".join(paths[:i])
             collection = FileModel.get_by_path(path_str)
             if collection is None:
                 collection = FileModel()
