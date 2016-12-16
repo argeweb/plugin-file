@@ -30,27 +30,27 @@ class FileDataModel(ndb.Model):
 class FileModel(BasicModel):
     class Meta:
         label_name = {
-            "title": u"顯示名稱",
-            "display_name": u"顯示名稱",
-            "children": u"子項目",
-            "path_as_url": u"URL"
+            'title': u'顯示名稱',
+            'display_name': u'顯示名稱',
+            'children': u'子項目',
+            'path_as_url': u'URL'
         }
-    name = Fields.StringProperty(verbose_name=u"名稱")
-    path = Fields.StringProperty(verbose_name=u"檔案路徑")
-    content_length = Fields.IntegerProperty(default=0, verbose_name=u"檔案大小")
-    content_type = Fields.StringProperty(default="blob", verbose_name=u"檔案類型")
-    content_language = Fields.StringProperty(verbose_name=u"語系")
-    parent_resource = Fields.CategoryProperty(kind=selfReferentialModel, verbose_name=u"所屬目錄")
-    is_collection = Fields.BooleanProperty(default=False, verbose_name=u"是否為目錄")
-    is_root = Fields.BooleanProperty(default=False, verbose_name=u"是否為根目錄")
+    name = Fields.StringProperty(verbose_name=u'名稱')
+    path = Fields.StringProperty(verbose_name=u'檔案路徑')
+    content_length = Fields.IntegerProperty(default=0, verbose_name=u'檔案大小')
+    content_type = Fields.StringProperty(default='blob', verbose_name=u'檔案類型')
+    content_language = Fields.StringProperty(verbose_name=u'語系')
+    parent_resource = Fields.CategoryProperty(kind=selfReferentialModel, verbose_name=u'所屬目錄')
+    is_collection = Fields.BooleanProperty(default=False, verbose_name=u'是否為目錄')
+    is_root = Fields.BooleanProperty(default=False, verbose_name=u'是否為根目錄')
     created = Fields.DateTimeProperty(auto_now_add=True)
     modified = Fields.DateTimeProperty(auto_now=True)
-    etag = Fields.StringProperty(verbose_name=u"ETag")
-    resource_data = Fields.CategoryProperty(kind=FileDataModel, verbose_name=u"檔案實體")
-    last_version = Fields.IntegerProperty(default=0, verbose_name=u"最新的版本")
-    last_md5 = Fields.StringProperty(default=u"", verbose_name=u"MD5")
-    file = Fields.BlobKeyProperty(verbose_name=u"BlobKey")
-    theme = Fields.StringProperty(default=u"", verbose_name=u"所屬樣式")
+    etag = Fields.StringProperty(verbose_name=u'ETag')
+    resource_data = Fields.CategoryProperty(kind=FileDataModel, verbose_name=u'檔案實體')
+    last_version = Fields.IntegerProperty(default=0, verbose_name=u'最新的版本')
+    last_md5 = Fields.StringProperty(default=u'', verbose_name=u'MD5')
+    file = Fields.BlobKeyProperty(verbose_name=u'BlobKey')
+    theme = Fields.StringProperty(default=u'', verbose_name=u'所屬樣式')
 
     @property
     def children(self):
@@ -66,7 +66,7 @@ class FileModel(BasicModel):
 
     @property
     def display_name(self):
-        return os.path.basename("%s" % self.path)
+        return os.path.basename('%s' % self.path)
 
     @property
     def path_as_url(self):
@@ -87,17 +87,17 @@ class FileModel(BasicModel):
     @classmethod
     def code_files(cls):
         return cls.query(
-                cls.content_type.IN(["css", "js", "javascript", "html", "text/css", "text/html", "text/javascript"]),
+                cls.content_type.IN(['css', 'js', 'javascript', 'html', 'text/css', 'text/html', 'text/javascript']),
         ).order(-cls.sort, -cls.key)
 
     def make_directory(self):
         path = self.path
-        if path[0:1] is u"/":
-            path = u"/" + path
-        paths = path.split("/")
+        if path[0:1] is u'/':
+            path = u'/' + path
+        paths = path.split('/')
         last_parent = FileModel.root()
         for i in xrange(1, len(paths)):
-            path_str = u"/".join(paths[:i])
+            path_str = u'/'.join(paths[:i])
             collection = FileModel.get_by_path(path_str)
             if collection is None:
                 collection = FileModel()
@@ -115,14 +115,14 @@ class FileModel(BasicModel):
         root = cls.all().filter(cls.is_root==True).get()
         if not root:
             root = cls(path='', is_collection=True)
-            root.name = "-Root-"
+            root.name = '-Root-'
             root.is_root = True
             root.put()
         return root
 
     @classmethod
-    def all_by_path(cls, path=""):
-        query = cls.all().filter(cls.path == path + "%")
+    def all_by_path(cls, path=''):
+        query = cls.all().filter(cls.path == path + '%')
         return query
 
     @classmethod
@@ -130,7 +130,7 @@ class FileModel(BasicModel):
         return cls.all().filter(cls.path == path).get() if path else cls.root()
 
     @classmethod
-    def exists_with_path(cls, path="", is_collection=None):
+    def exists_with_path(cls, path='', is_collection=None):
         query = cls.all().filter(cls.path == path)
         if is_collection is not None:
             query = query.filter(cls.is_collection == True)
@@ -146,7 +146,7 @@ class FileModel(BasicModel):
         n = cls.get_by_path(path)
         if n is None:
             n = cls()
-            n.name = os.path.basename("%s" % path)
+            n.name = os.path.basename('%s' % path)
             n.path = path
             n.content_type = content_type
             n.put()
@@ -172,15 +172,15 @@ class FileModel(BasicModel):
         try:
             for duped_resource in FileModel.all().filter(FileModel.path == self.path):
                 if self.key().id() != duped_resource.key().id():
-                    logging.info("Deleting duplicate resource %s with path %s." % (duped_resource,duped_resource.path))
+                    logging.info('Deleting duplicate resource %s with path %s.' % (duped_resource,duped_resource.path))
                     duped_resource.delete()
-            if self.name != "-Root-":
+            if self.name != '-Root-':
                 self.name = self.display_name
         except:
             pass
-        paths = self.path.split("/")
-        theme = ""
-        if len(paths) >= 2 and paths[0] == "themes":
+        paths = self.path.split('/')
+        theme = ''
+        if len(paths) >= 2 and paths[0] == 'themes':
             theme = paths[1]
         self.theme = theme
         super(FileModel, self).put()
@@ -233,7 +233,7 @@ class FileModel(BasicModel):
         if self.is_collection:
             ET.SubElement(resourcetype, 'D:collection')
 
-        ET.SubElement(propstat,'D:status').text = "HTTP/1.1 200 OK"
+        ET.SubElement(propstat,'D:status').text = 'HTTP/1.1 200 OK'
         return response
 
 
