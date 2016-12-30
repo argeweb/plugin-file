@@ -5,10 +5,13 @@
 # Author: Qi-Liang Wen (温啓良）
 # Web: http://www.yooliang.com/
 # Date: 2015/7/12.
-from argeweb import datastore
+from argeweb import datastore, function
 import webapp2
 from google.appengine.ext import webapp
+from models.file_model import get_last_version, get_theme_path
 from argeweb.core import settings
+
+function.register(get_last_version)
 
 plugins_helper = {
     'title': u'File',
@@ -26,14 +29,6 @@ plugins_helper = {
         },
     }
 }
-
-
-def get_theme_path(theme, path):
-    if path.startswith(u'/themes/%s' % theme) is False:
-        path = u'/themes/%s/%s' % (theme, path)
-    if path.startswith('/') is True:
-        path = path[1:]
-    return path
 
 
 class GetFileHandler(webapp2.RequestHandler):

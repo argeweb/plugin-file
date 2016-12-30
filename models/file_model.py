@@ -17,6 +17,38 @@ import os
 from file_self_referential_model import FileModel as selfReferentialModel
 
 
+def get_theme_path(theme, path):
+    if path.startswith(u'/themes/%s' % theme) is False:
+        path = u'/themes/%s/%s' % (theme, path)
+    if path.startswith('/') is True:
+        path = path[1:]
+    return path
+
+
+def get_last_version(*args, **kwargs):
+    path = None
+    if 'path' in kwargs:
+        path = kwargs['path']
+    elif len(args) ==1:
+        path = args[0]
+    if path is None:
+        return ''
+    if path.startswith('/') is True:
+        path = path[1:]
+    if path.startswith('assets/') is True:
+        path = path[7:]
+    else:
+        path = get_theme_path(kwargs['controller'].theme, path)
+    logging.error(path)
+    f = FileModel.get_by_path(path)
+    if f is None:
+        return ''
+    prefix = '/assets/'
+    if 'prefix' in kwargs:
+        prefix = kwargs['prefix']
+    return prefix + f.path + '?last_version=' + str(f.last_version)
+
+
 def get_file(path):
     return FileModel.get_by_path(path)
 
