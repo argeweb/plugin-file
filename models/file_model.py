@@ -25,8 +25,7 @@ def get_theme_path(theme, path):
     return path
 
 
-def get_last_version(*args, **kwargs):
-    path = None
+def get_last_version(path=None, prefix='/assets/', *args, **kwargs):
     if 'path' in kwargs:
         path = kwargs['path']
     elif len(args) ==1:
@@ -43,7 +42,6 @@ def get_last_version(*args, **kwargs):
     f = FileModel.get_by_path(path)
     if f is None:
         return ''
-    prefix = '/assets/'
     if 'prefix' in kwargs:
         prefix = kwargs['prefix']
     return prefix + f.path + '?last_version=' + str(f.last_version)
