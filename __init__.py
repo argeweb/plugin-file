@@ -5,17 +5,17 @@
 # Author: Qi-Liang Wen (温啓良）
 # Web: http://www.yooliang.com/
 # Date: 2015/7/12.
-from argeweb import datastore, function
+from argeweb import ViewDatastore, ViewFunction
 import webapp2
 from google.appengine.ext import webapp
 from models.file_model import get_last_version, get_theme_path
 from argeweb.core import settings
 
-function.register(get_last_version)
+ViewFunction.register(get_last_version)
 
 plugins_helper = {
     'title': u'File',
-    'desc': u'File System In Datastore',
+    'desc': u'File System In ViewDatastore',
     'controllers': {
         'file': {
             'group': u'檔案',
