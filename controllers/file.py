@@ -19,7 +19,7 @@ class File(Controller):
         pagination_limit = 10
 
     class Scaffold:
-        display_properties_in_list = ('path', 'etag', 'parent_resource', 'display_name', 'content_type', 'content_length', 'data')
+        display_in_list = ('path', 'etag', 'parent_resource', 'display_name', 'content_type', 'content_length', 'data')
 
     @route_menu(list_name=u'backend', text=u'檔案列表', sort=9703, group=u'檔案管理', need_hr=True)
     def admin_list(self):
