@@ -110,6 +110,10 @@ class FileModel(BasicModel):
             mimetype = mimetypes.guess_type(self.path, strict=False)[0]
             return mimetype if mimetype else 'application/octet-stream'
 
+    @property
+    def is_code_file(self):
+        return self.content_type in (['css', 'js', 'javascript', 'html', 'text/css', 'text/html', 'text/javascript'])
+
     @classmethod
     def all_without_root(cls):
         return cls.query(cls.is_root == False).order(-cls.sort)
@@ -121,22 +125,25 @@ class FileModel(BasicModel):
         ).order(-cls.sort, -cls.key)
 
     def make_directory(self):
-        path = self.path
+        path = u'' + self.path
         if path[0:1] is u'/':
-            path = u'/' + path
-        paths = path.split('/')
+            path = path[1:]
+        paths = path.split(u'/')
         last_parent = FileModel.root()
-        for i in xrange(1, len(paths)):
-            path_str = u'/'.join(paths[:i])
-            collection = FileModel.get_by_path(path_str)
-            if collection is None:
-                collection = FileModel()
-            collection.name = paths[i]
-            collection.path = path_str
-            collection.parent_resource = last_parent.key
-            collection.is_collection = True
-            collection.put()
-            last_parent = collection
+        if len(paths) > 1:
+            for i in xrange(1, len(paths)):
+                path_str = u'/'.join(paths[:i])
+                if path_str is not u'':
+                    collection = FileModel.get_by_path(path_str)
+                    if collection is None:
+                        collection = FileModel()
+                        collection.name = paths[i]
+                        collection.path = path_str
+                        collection.parent_resource = last_parent.key
+                        collection.is_collection = True
+                        collection.put()
+                    if collection != self and collection.is_collection is True:
+                        last_parent = collection
         self.parent_resource = last_parent.key
         self.put()
 
