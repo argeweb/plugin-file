@@ -15,8 +15,6 @@ from argeweb.components.search import Search
 class File(Controller):
     class Meta:
         components = (scaffold.Scaffolding, Pagination, Search)
-        pagination_actions = ('list',)
-        pagination_limit = 50
 
     class Scaffold:
         display_in_list = ('path', 'etag', 'parent_resource', 'display_name', 'content_type', 'content_length', 'data')
