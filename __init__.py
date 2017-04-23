@@ -45,6 +45,9 @@ class GetFileHandler(webapp2.RequestHandler):
             return self.abort(304)
         resource = get_file(request_path)
         if resource is None:
+            import os.path
+            if os.path.exists(request_path):
+                return self.redirect('/r/%s' % request_path)
             return self.abort(404)
         etag = str(request_path) + '||' + str(theme)
         self.response.headers.setdefault('Access-Control-Allow-Origin', '*')
