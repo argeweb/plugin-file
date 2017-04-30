@@ -15,7 +15,7 @@ ViewFunction.register(get_last_version)
 
 plugins_helper = {
     'title': u'File',
-    'desc': u'File System In ViewDatastore',
+    'desc': u'File System In Datastore',
     'controllers': {
         'file': {
             'group': u'檔案',
@@ -25,6 +25,7 @@ plugins_helper = {
                 {'action': 'edit', 'name': u'編輯檔案'},
                 {'action': 'view', 'name': u'檢視檔案'},
                 {'action': 'delete', 'name': u'刪除檔案'},
+                {'action': 'plugins_check', 'name': u'啟用停用模組'},
             ]
         },
     }
