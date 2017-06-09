@@ -13,17 +13,13 @@ from argeweb.components.search import Search
 
 
 class File(Controller):
-    class Meta:
-        components = (scaffold.Scaffolding, Pagination, Search)
-
     class Scaffold:
         display_in_list = ('path', 'etag', 'parent_resource', 'display_name', 'content_type', 'content_length', 'data')
 
     @route_menu(list_name=u'backend', text=u'檔案列表', sort=9703, group=u'檔案管理', need_hr=True)
     def admin_list(self):
         def query_factory_all_without_root(controller):
-            model = controller.meta.Model
-            return model.all_without_root()
+            return controller.meta.Model.all_without_root()
 
         self.scaffold.query_factory = query_factory_all_without_root
         return scaffold.list(self)
