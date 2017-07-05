@@ -14,7 +14,7 @@ from argeweb.core import settings
 ViewFunction.register(get_last_version)
 
 plugins_helper = {
-    'title': u'File',
+    'title': u'檔案管理',
     'desc': u'File System In Datastore',
     'controllers': {
         'file': {

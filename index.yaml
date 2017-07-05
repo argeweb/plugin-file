@@ -1,0 +1,56 @@
+- kind: FileModel
+  properties:
+  - name: content_type
+  - name: created
+    direction: desc
+
+- kind: FileModel
+  properties:
+  - name: content_type
+  - name: sort
+    direction: desc
+
+- kind: FileModel
+  properties:
+  - name: content_type
+  - name: sort
+    direction: desc
+  - name: __key__
+    direction: desc
+
+- kind: FileModel
+  properties:
+  - name: is_collection
+  - name: sort
+    direction: desc
+
+- kind: FileModel
+  properties:
+  - name: is_collection
+  - name: theme
+  - name: path
+    direction: desc
+
+- kind: FileModel
+  properties:
+  - name: is_root
+  - name: sort
+    direction: desc
+
+- kind: FileModel
+  properties:
+  - name: parent_resource
+  - name: sort
+    direction: desc
+
+- kind: FileModel
+  properties:
+  - name: path
+  - name: sort
+    direction: desc
+
+- kind: FileModel
+  properties:
+  - name: theme
+  - name: path
+    direction: desc
