@@ -54,3 +54,9 @@
   - name: theme
   - name: path
     direction: desc
+
+- kind: CodeModel
+  properties:
+  - name: target
+  - name: version
+    direction: desc

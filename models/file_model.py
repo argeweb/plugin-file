@@ -17,18 +17,22 @@ import os
 from file_self_referential_model import FileModel as selfReferentialModel
 
 
-def get_theme_path(theme, path):
-    if path.startswith(u'/themes/%s' % theme) is False:
-        path = u'/themes/%s/%s' % (theme, path)
+def get_theme_path(theme, path, pre_word=u'themes'):
+    templates = u''
+    if pre_word != u'themes':
+        templates = u"/templates"
+    if path.startswith(u'/%s/%s' % (pre_word, theme)) is False:
+        path = u'/%s/%s%s/%s' % (pre_word, theme, templates, path)
     if path.startswith('/') is True:
         path = path[1:]
     return path
 
 
-def get_last_version(path=None, prefix='/assets/', *args, **kwargs):
+def porcess_path(path, *args, **kwargs):
+    old_path = path
     if 'path' in kwargs:
         path = kwargs['path']
-    elif len(args) ==1:
+    elif len(args) == 1:
         path = args[0]
     if path is None:
         return ''
@@ -38,13 +42,19 @@ def get_last_version(path=None, prefix='/assets/', *args, **kwargs):
         path = path[7:]
     else:
         path = get_theme_path(kwargs['controller'].theme, path)
-    logging.error(path)
+    return path
+
+
+def version(path=None, *args, **kwargs):
+    path = porcess_path(path, *args, **kwargs)
     f = FileModel.get_by_path(path)
     if f is None:
         return ''
-    if 'prefix' in kwargs:
-        prefix = kwargs['prefix']
-    return prefix + f.path + '?last_version=' + str(f.last_version)
+    return str(f.last_version)
+
+
+def get_last_version(path=None, *args, **kwargs):
+    return path + '?last_version=' + version(path, *args, **kwargs)
 
 
 def get_file(path):
@@ -67,20 +77,27 @@ class FileModel(BasicModel):
         }
     name = Fields.StringProperty(verbose_name=u'名稱')
     path = Fields.StringProperty(verbose_name=u'檔案路徑')
-    content_length = Fields.IntegerProperty(default=0, verbose_name=u'檔案大小')
-    content_type = Fields.StringProperty(default='blob', verbose_name=u'檔案類型')
+    content_length = Fields.IntegerProperty(verbose_name=u'檔案大小', default=0)
+    content_type = Fields.StringProperty(verbose_name=u'檔案類型', default='blob')
     content_language = Fields.StringProperty(verbose_name=u'語系')
     parent_resource = Fields.CategoryProperty(kind=selfReferentialModel, verbose_name=u'所屬目錄')
-    is_collection = Fields.BooleanProperty(default=False, verbose_name=u'是否為目錄')
-    is_root = Fields.BooleanProperty(default=False, verbose_name=u'是否為根目錄')
+    is_collection = Fields.BooleanProperty(verbose_name=u'是否為目錄', default=False)
+    is_root = Fields.BooleanProperty(verbose_name=u'是否為根目錄', default=False)
     created = Fields.DateTimeProperty(auto_now_add=True)
     modified = Fields.DateTimeProperty(auto_now=True)
     etag = Fields.StringProperty(verbose_name=u'ETag')
     resource_data = Fields.CategoryProperty(kind=FileDataModel, verbose_name=u'檔案實體')
-    last_version = Fields.IntegerProperty(default=0, verbose_name=u'最新的版本')
-    last_md5 = Fields.StringProperty(default=u'', verbose_name=u'MD5')
+    last_version = Fields.IntegerProperty(verbose_name=u'最新的版本', default=0)
+    last_md5 = Fields.StringProperty(verbose_name=u'MD5', default=u'')
     file = Fields.BlobKeyProperty(verbose_name=u'BlobKey')
-    theme = Fields.StringProperty(default=u'', verbose_name=u'所屬樣式')
+    theme = Fields.StringProperty(verbose_name=u'所屬樣式', default=u'')
+
+    @property
+    def abs_path(self):
+        if self.is_collection is False:
+            if str(self.path).startswith('themes/'):
+                return '/assets/' + self.path
+        return '/' + self.path
 
     @property
     def children(self):
@@ -203,6 +220,7 @@ class FileModel(BasicModel):
         self.put()
 
     def put(self):
+        # type: () -> object
         # workaround for general non-solveable issue of no UNIQUE constraint concept in app engine datastore.
         # anytime we save, we look for the possibility of other duplicate Resources with the same path and delete them.
 
@@ -218,7 +236,7 @@ class FileModel(BasicModel):
         paths = self.path.split('/')
         theme = ''
         if len(paths) >= 2 and paths[0] == 'themes':
-            theme = paths[1]
+             theme = paths[1]
         self.theme = theme
         super(FileModel, self).put()
 

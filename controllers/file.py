@@ -6,17 +6,14 @@
 # Web: http://www.yooliang.com/
 # Date: 2015/7/12.
 import sys
-from time import time
-from argeweb import Controller, scaffold, route_menu, route_with, route
-from argeweb.components.pagination import Pagination
-from argeweb.components.search import Search
+from argeweb import Controller, scaffold, route_menu, route
 
 
 class File(Controller):
     class Scaffold:
-        display_in_list = ('path', 'etag', 'parent_resource', 'display_name', 'content_type', 'content_length', 'data')
+        display_in_list = ['path', 'etag', 'parent_resource', 'display_name', 'content_type', 'content_length', 'data']
 
-    @route_menu(list_name=u'backend', text=u'檔案列表', sort=9703, group=u'檔案管理', need_hr=True)
+    @route_menu(list_name=u'backend', group=u'檔案管理', need_hr=True, text=u'檔案列表', sort=9703)
     def admin_list(self):
         def query_factory_all_without_root(controller):
             return controller.meta.Model.all_without_root()
@@ -73,4 +70,5 @@ class File(Controller):
             target.make_directory()
         except:
             self.context['data'] = {'error': sys.exc_info()[0]}
+            return
         self.context['data'] = {'info': 'done'}
